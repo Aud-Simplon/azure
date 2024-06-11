@@ -1,2 +1,2 @@
 # azure
-Suivez le git tiko bantko
+Découverte de git -> suivez le Git Tiko-Bantko-Tiko
