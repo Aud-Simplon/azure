@@ -52,7 +52,7 @@ $dbname = 'bantko';
 // Créer une connexion
 //$conn = new mysqli($servername, $username, $password, $dbname);
 $conn = mysqli_init();
-mysqli_ssl_set($conn,NULL,NULL, "/var/www/html/DigiCertGlobalRootCA.crt.pem", NULL, NULL);
+mysqli_ssl_set($conn,NULL,NULL, "SSL", NULL, NULL);
 mysqli_real_connect($conn, 'bdd-aud.mysql.database.azure.com', 'audrey', 'Simplon2024!', 'bantko', 3306, MYSQLI_CLIENT_SSL);
 if (mysqli_connect_errno()) {
 die('Failed to connect to MySQL: '.mysqli_connect_error());
