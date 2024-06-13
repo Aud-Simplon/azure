@@ -1,39 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-<title>Afficher une table MariaDB</title>
+<meta charset="UTF-8">
+<title>Afficher une table MariaDB2</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+    table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        background-color: #fff;
+    }
+    th, td {
+        padding: 12px;
+        text-align: left;
+    }
+    th {
+        background-color: #4CAF50;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    tr:hover {
+        background-color: #ddd;
+    }
+</style>
 </head>
 <body>
 
-<h1>Mon logo</h1>
-<img src="lu.jpg" alt="Logo de mon site">
+<h1>Informations des utilisateurs</h1>
+<img src="champ.png" alt="Youhou!">
 
 <?php
-// Connecter à la base de données MariaDB
-$db = new mysqli('10.10.0.5', 'audrey', 'Simplon2024!', 'bankto');
+// Paramètres de connexion à la base de données
+$servername = 'bdd-aud.mysql.database.azure.com';
+$username = 'audrey';
+$password = 'Simplon2024!';
+$dbname = 'bantko';
 
-// Sélectionner les données de la table
-$query = "SELECT * FROM employes";
-$result = $db->query($query);
-
-// Afficher les données dans un tableau HTML
-echo "<table>";
-echo "<tr><th>Nom</th><th>Prenom</th><th>Service</th><th>Fonction</th><th>Login</th><th>Mail</th></tr>";
-while ($row = $result->fetch_assoc()) {
-    echo "<tr>";
-    echo "<td>" . $row['Numero'] . "</td>";
-    echo "<td>" . $row['Prenom'] . "</td>";
-    echo "<td>" . $row['Service'] . "</td>";
-    echo "<td>" . $row['Fonction'] . "</td>";
-    echo "<td>" . $row['Login'] . "</td>";
-    echo "<td>" . $row['Mail'] . "</td>";
-    echo "</tr>";
+// Créer une connexion
+//$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = mysqli_init();
+mysqli_ssl_set($conn,NULL,NULL, "/var/www/html/DigiCertGlobalRootCA.crt.pem", NULL, NULL);
+mysqli_real_connect($conn, 'bdd-aud.mysql.database.azure.com', 'audrey', 'Simplon2024!', 'bantko', 3306, MYSQLI_CLIENT_SSL);
+if (mysqli_connect_errno()) {
+die('Failed to connect to MySQL: '.mysqli_connect_error());
 }
-echo "</table>";
+
+// Vérifier la connexion
+if ($conn->connect_error) {
+    die("La connexion a échoué: " . $conn->connect_error);
+}
+
+// Préparer et exécuter la requête
+$query = "SELECT * FROM employes";
+if ($stmt = $conn->prepare($query)) {
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Afficher les données dans un tableau HTML
+    if ($result->num_rows > 0) {
+        echo "<table>";
+        echo "<tr><th>Numéro</th><th>Prénom</th><th>Nom</th></tr>";
+        while ($row = $result->fetch_assoc()) {
+            echo "<tr>";
+            echo "<td>" . htmlspecialchars($row['Numero']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['Prenom']) . "</td>";
+            echo "<td>" . htmlspecialchars($row['Nom']) . "</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    } else {
+        echo "<p style='text-align: center;'>Aucune donnée trouvée.</p>";
+    }
+
+    // Libérer le résultat
+    $result->free();
+    $stmt->close();
+} else {
+    echo "<p style='text-align: center;'>Erreur lors de la préparation de la requête: " . $conn->error . "</p>";
+}
 
 // Fermer la connexion à la base de données
-$db->close();
+$conn->close();
 ?>
 
 </body>
-<html>
+</html>
